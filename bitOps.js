@@ -1,5 +1,7 @@
 var inf = require("readline").createInterface(process.stdin, process.stdout)
-var dbg = false
+var dbg = true
+var bytes = {}
+var activeByte = "default"
 var cbyte = 0
 const say = console.log
 const byteMask = 0xff
@@ -14,7 +16,10 @@ bin([num])  equivalent to the binary data of the inputted number
 val equivalent to the current binary data.
 !D  Toggles the debug flag.
 clear   Clears the screen.
-cls Alias of clear`
+cls Alias of clear
+var [text]  Sets the current byte.
+var [text] [bin]    Sets a new byte and switches to it.
+%[text]%    Equivalent to the value of the specified variable.`
 function debug(...text){
     if(!dbg)return
     say.apply(this, text)
@@ -44,6 +49,7 @@ function btos(num){
 function btot(num){
     return String.fromCharCode(num)
 }
+// NOTICE: "nop" stands for NOT operation, not no operation.
 function interpretCmd(cmd){
     if(cmd == "help"){
         say(help)
@@ -60,6 +66,7 @@ function interpretCmd(cmd){
         eq:cmd.match(/\!?\=\s*(.*)/),
         echo:cmd.match(/^\s*([0-1]+)\s*$/),
         nop:cmd.match(/^\s*\!(.)\s*([0-1]+)\s*$/),
+        var:cmd.match(/^\s*var\s+(\w+)(\s+([0-1]+))?\s*$/),
         dbg:cmd.match(/\!D/)
     }
     if(matchCases.dbg){
@@ -89,6 +96,14 @@ function interpretCmd(cmd){
     }else if(matchCases.eq){
         mc = matchCases.eq
         cbyte = stob(mc[1])
+    }else if(matchCases.var){
+        mc = matchCases.var
+        bytes[activeByte] = cbyte
+        activeByte = mc[1]
+        if(typeof bytes[mc[1]] == "undefined"){
+            bytes[mc[1]] = stob(mc[3])
+        }
+        cbyte = bytes[mc[1]]
     }
     if(nopFlag){
         cbyte = ~cbyte
@@ -103,12 +118,13 @@ function interpretCmd(cmd){
 function parseIn(text){
     text = text.replace(/(.*)bin\(([0-9]+)\)/g, (s, bc, g1)=>{debug(s, bc, g1); return bc+btos(parseInt(g1.trim()))})
     text = text.replace(/(.*)val/g, (s, bc)=>{return bc+btos(cbyte)})
+    text = text.replace(/%(\w+)%/g, (s, g1)=>{return btos(bytes[g1])})
     debug(text)
     return text.trim()
 }
 inf.on("line", (text)=>{
     interpretCmd(parseIn(text.trim()))
 })
-say("BitOp succesfully loaded.")
-say("Bit Operations Terminal v0.1")
+say("BitOpJS succesfully loaded.")
+say("Bit Operations Terminal v1.1.0")
 say("Type \"help\" for a list of commands.")
