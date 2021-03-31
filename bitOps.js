@@ -1,6 +1,8 @@
 //NOTICE: This is a version that is in development.
 var inf = require("readline").createInterface(process.stdin, process.stdout)
-var dbg = false
+var dbg = true
+var bytes = {}
+var activeByte = "default"
 var cbyte = 0
 const say = console.log
 const byteMask = 0xff
@@ -45,6 +47,7 @@ function btos(num){
 function btot(num){
     return String.fromCharCode(num)
 }
+// NOTICE: "nop" stands for NOT operation, not no operation.
 function interpretCmd(cmd){
     if(cmd == "help"){
         say(help)
@@ -61,6 +64,7 @@ function interpretCmd(cmd){
         eq:cmd.match(/\!?\=\s*(.*)/),
         echo:cmd.match(/^\s*([0-1]+)\s*$/),
         nop:cmd.match(/^\s*\!(.)\s*([0-1]+)\s*$/),
+        var:cmd.match(/^\s*var\s+(\w+)(\s+([0-1]+))?\s*$/),
         dbg:cmd.match(/\!D/)
     }
     if(matchCases.dbg){
@@ -90,6 +94,14 @@ function interpretCmd(cmd){
     }else if(matchCases.eq){
         mc = matchCases.eq
         cbyte = stob(mc[1])
+    }else if(matchCases.var){
+        mc = matchCases.var
+        bytes[activeByte] = cbyte
+        activeByte = mc[1]
+        if(!bytes[mc[1]]){
+            bytes[mc[1]] = stob(mc[3])
+        }
+        cbyte = bytes[mc[1]]
     }
     if(nopFlag){
         cbyte = ~cbyte
