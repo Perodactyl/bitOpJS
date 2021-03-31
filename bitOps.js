@@ -17,7 +17,10 @@ bin([num])  equivalent to the binary data of the inputted number
 val equivalent to the current binary data.
 !D  Toggles the debug flag.
 clear   Clears the screen.
-cls Alias of clear`
+cls Alias of clear
+var [text]  Sets the current byte.
+var [text] [bin]    Sets a new byte and switches to it.
+%[text]%    Equivalent to the value of the specified variable.`
 function debug(...text){
     if(!dbg)return
     say.apply(this, text)
@@ -98,7 +101,7 @@ function interpretCmd(cmd){
         mc = matchCases.var
         bytes[activeByte] = cbyte
         activeByte = mc[1]
-        if(!bytes[mc[1]]){
+        if(typeof bytes[mc[1]] == "undefined"){
             bytes[mc[1]] = stob(mc[3])
         }
         cbyte = bytes[mc[1]]
@@ -116,6 +119,7 @@ function interpretCmd(cmd){
 function parseIn(text){
     text = text.replace(/(.*)bin\(([0-9]+)\)/g, (s, bc, g1)=>{debug(s, bc, g1); return bc+btos(parseInt(g1.trim()))})
     text = text.replace(/(.*)val/g, (s, bc)=>{return bc+btos(cbyte)})
+    text = text.replace(/%(\w+)%/g, (s, g1)=>{return btos(bytes[g1])})
     debug(text)
     return text.trim()
 }
