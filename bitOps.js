@@ -1,3 +1,4 @@
+//NOTICE: This is a version that is in development.
 var inf = require("readline").createInterface(process.stdin, process.stdout)
 var dbg = false
 var cbyte = 0
@@ -109,6 +110,6 @@ function parseIn(text){
 inf.on("line", (text)=>{
     interpretCmd(parseIn(text.trim()))
 })
-say("BitOp succesfully loaded.")
-say("Bit Operations Terminal v0.1")
+say("BitOpJS succesfully loaded.")
+say("Bit Operations Terminal v1.0 DEVEL")
 say("Type \"help\" for a list of commands.")
